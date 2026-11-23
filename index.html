@@ -360,6 +360,15 @@
     /* 칸이 글 길이에 맞춰 저절로 늘어나게 (손으로 늘릴 필요 없음) */
     #form textarea { resize: none; overflow: hidden; min-height: 84px; line-height: 1.6; }
     #form textarea.linkbox { min-height: 104px; }
+    /* 꼭지별 색 교차: 금색 → 파랑 → 초록 → 빨강 */
+    label.q1 i { background: #fff0cc; } label.q1 span { box-shadow: inset 0 -8px 0 rgba(217,164,65,.28); }
+    label.q2 i { background: #e1ecfa; } label.q2 span { box-shadow: inset 0 -8px 0 rgba(79,147,210,.22); }
+    label.q3 i { background: #e1f1e6; } label.q3 span { box-shadow: inset 0 -8px 0 rgba(95,154,114,.22); }
+    label.q4 i { background: #ffe1e4; } label.q4 span { box-shadow: inset 0 -8px 0 rgba(224,90,110,.2); }
+    #fw1.next textarea { border-color: rgba(217,164,65,.65); animation-name: glowg; } #fw1.next label.q i { animation-name: tileg; }
+    #fw2.next textarea { border-color: rgba(79,147,210,.6); animation-name: glowb; } #fw2.next label.q i { animation-name: tileb; }
+    @keyframes glowg { 50% { box-shadow: 0 0 0 5px rgba(217,164,65,.2); } } @keyframes tileg { 50% { transform: scale(1.12); box-shadow: 0 0 0 6px rgba(217,164,65,.22); } }
+    @keyframes glowb { 50% { box-shadow: 0 0 0 5px rgba(79,147,210,.18); } } @keyframes tileb { 50% { transform: scale(1.12); box-shadow: 0 0 0 6px rgba(79,147,210,.2); } }
   </style>
 </head>
 <body>
@@ -407,14 +416,14 @@
 
     <section class="card animate delay-3" id="form">
       <p class="onenote" id="oneNote" hidden>바쁜 날 · 한 줄만 쓰기 중 <button type="button" id="oneOff">모두 쓰기</button></p>
-      <div class="field" id="fw1"><label for="f1" class="q q1"><i>👣</i><span>오늘 해낸 한 걸음</span></label>
+      <div class="field" id="fw1"><label for="f1" class="q q1"><i>🏅</i><span>오늘 해낸 한 걸음</span></label>
         <textarea id="f1" placeholder="오늘 해낸 것, 아주 작은 것도 좋아요"></textarea>
         <button class="chip" id="loadY">↩ 어제 쓴 '내일의 한 걸음' 불러오기</button></div>
-      <div class="field only-full" id="fw2"><label for="f2" class="q q2"><i>🎧</i><span>오늘의 배움</span></label>
+      <div class="field only-full" id="fw2"><label for="f2" class="q q2"><i>📘</i><span>오늘의 배움</span></label>
         <textarea id="f2" placeholder="들은 강의나 새로 알게 된 것"></textarea></div>
       <div class="field only-full" id="fw3"><label for="f3" class="q q3"><i>🌱</i><span>내일의 한 걸음</span></label>
         <textarea id="f3" placeholder="내일 해볼 작은 한 가지"></textarea></div>
-      <div class="field" id="fw4"><label for="f4" class="q q4"><i>🔗</i><span>오늘 올린 콘텐츠</span><em class="opt">선택</em></label>
+      <div class="field" id="fw4"><label for="f4" class="q q4"><i>📌</i><span>오늘 올린 콘텐츠</span><em class="opt">선택</em></label>
         <textarea id="f4" class="linkbox" inputmode="url" autocapitalize="off" spellcheck="false" placeholder="릴스·블로그 링크를 붙여넣어 주세요 (여러 개면 줄을 바꿔서)"></textarea></div>
     </section>
 
@@ -581,12 +590,12 @@
     function title() { var d = parse(el('date').value || iso(new Date())); return '👣 [13조 일내조] 오늘의 한 걸음 · 1일1노력 ' + (d.getMonth() + 1) + '/' + d.getDate() + '(' + WD[d.getDay()] + ')'; }
     function body() {
       var t, nk = el('nick').value.trim();
-      if (mode === 'one') t = '👣 오늘 해낸 한 걸음: ' + (v(1) || '…');
+      if (mode === 'one') t = '🏅 오늘 해낸 한 걸음: ' + (v(1) || '…');
       else {
-        var p = ['👣 오늘 해낸 한 걸음\n' + (v(1) || '…'), '🎧 오늘의 배움\n' + (v(2) || '없음'), '🌱 내일의 한 걸음\n' + (v(3) || '…')];
+        var p = ['🏅 오늘 해낸 한 걸음\n' + (v(1) || '…'), '📘 오늘의 배움\n' + (v(2) || '없음'), '🌱 내일의 한 걸음\n' + (v(3) || '…')];
         t = p.join('\n\n');
       }
-      if (v(4)) t += '\n\n🔗 오늘 올린 콘텐츠\n' + v(4).split('\n').map(function(x) { return x.trim(); }).filter(Boolean).join('\n');
+      if (v(4)) t += '\n\n📌 오늘 올린 콘텐츠\n' + v(4).split('\n').map(function(x) { return x.trim(); }).filter(Boolean).join('\n');
       return t + (nk ? '\n\n— ' + nk + ' (13조 일내조)' : '') + '\n\n' + TAGS;
     }
     function all() { return title() + '\n\n' + body(); }
@@ -716,7 +725,7 @@
       gr.addColorStop(0, g[0]); gr.addColorStop(0.55, g[1]); gr.addColorStop(1, g[2]);
       x.fillStyle = gr; x.fillRect(0, 0, W, H);
       x.fillStyle = '#3a2e35'; x.font = "700 44px 'Gowun Batang', serif"; x.textBaseline = 'top';
-      x.fillText('👣 오늘의 한 걸음', P + 8, P + 10);
+      x.fillText('오늘의 한 걸음', P + 8, P + 10);
       function rr(X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
       var cy = P + 96;
       x.fillStyle = 'rgba(255,255,255,0.82)'; rr(P, cy, W - P * 2, cardH, 40); x.fill();
@@ -849,8 +858,8 @@
       var d = parse(dk);
       el('shT').textContent = no + '번째 걸음 👣';
       el('shD').textContent = (d.getMonth() + 1) + '월 ' + d.getDate() + '일(' + WD[d.getDay()] + ')에 남긴 기록';
-      var b = ['👣 오늘 해낸 한 걸음\n' + (e.f1 || '…'), '🎧 오늘의 배움\n' + ((e.f2 || '').trim() || '없음'), '🌱 내일의 한 걸음\n' + (e.f3 || '…')];
-      if ((e.f4 || '').trim()) b.push('🔗 오늘 올린 콘텐츠\n' + e.f4.trim());
+      var b = ['🏅 오늘 해낸 한 걸음\n' + (e.f1 || '…'), '📘 오늘의 배움\n' + ((e.f2 || '').trim() || '없음'), '🌱 내일의 한 걸음\n' + (e.f3 || '…')];
+      if ((e.f4 || '').trim()) b.push('📌 오늘 올린 콘텐츠\n' + e.f4.trim());
       el('shB').textContent = b.join('\n\n');
       el('sheet').dataset.d = dk; el('sheet').hidden = false;
     }
