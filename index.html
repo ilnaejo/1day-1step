@@ -578,7 +578,7 @@
     el('date').value = iso(new Date());
 
     function v(i) { return el('f' + i).value.trim(); }
-    function title() { var d = parse(el('date').value || iso(new Date())); return '[13조 일내조] 오늘의 한 걸음 · 1일1노력 ' + (d.getMonth() + 1) + '/' + d.getDate() + '(' + WD[d.getDay()] + ')'; }
+    function title() { var d = parse(el('date').value || iso(new Date())); return '👣 [13조 일내조] 오늘의 한 걸음 · 1일1노력 ' + (d.getMonth() + 1) + '/' + d.getDate() + '(' + WD[d.getDay()] + ')'; }
     function body() {
       var t, nk = el('nick').value.trim();
       if (mode === 'one') t = '👣 오늘 해낸 한 걸음: ' + (v(1) || '…');
