@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko" class="theme-light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f6a6a0">
+  <title>일내조 · 오늘의 한 걸음</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Noto+Sans+KR:wght@400;500;700&family=Gowun+Batang:wght@700&display=swap" rel="stylesheet">
+
+  <!-- PNG Export -->
+  <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
+
+  <style>
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; min-width: 0; }
+
+    /* 13조 일내조 팔레트 — 복숭아빛 아침 · 라벤더 저녁 · 세이지 산책길 */
+    :root,
+    html.theme-light {
+      --bg: #fbf6f3;
+      --surface: rgba(255,255,255,0.86);
+      --surface-2: #f6eeea;
+      --text: #3a2e35;
+      --text-2: #7d6b74;
+      --accent: #e8736a;
+      --accent-2: #8a76c9;
+      --border: rgba(90,60,70,0.10);
+      --positive: #6f9b7d;
+      --negative: #d4566a;
+      --warning: #d9a441;
+      --g1: #ffd9cf; --g2: #f3d9f0; --g3: #fff1dc;
+    }
+    html.theme-dark {
+      --bg: #1c1720;
+      --surface: rgba(40,33,44,0.88);
+      --surface-2: #2e2633;
+      --text: #f1e9ec;
+      --text-2: #b9a8b2;
+      --accent: #f08c82;
+      --accent-2: #b3a3ec;
+      --border: rgba(255,255,255,0.09);
+      --positive: #93c2a1;
+      --negative: #f07a8c;
+      --warning: #e8bd66;
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+      letter-spacing: -0.011em;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: clip;
+    }
+    body { padding-bottom: 170px; }
+
+    /* 매일 바뀌는 배경 */
+    .sky { position: fixed; inset: 0; z-index: -1; background: linear-gradient(160deg, var(--g1), var(--g2) 55%, var(--g3)); transition: background .8s ease; }
+    html.theme-dark .sky { opacity: .22; }
+    .sky i { position: absolute; border-radius: 50%; filter: blur(2px); opacity: .55; animation: float 14s ease-in-out infinite; }
+    .sky i:nth-child(1) { width: 240px; height: 240px; top: -60px; right: -70px; background: var(--b1); }
+    .sky i:nth-child(2) { width: 160px; height: 160px; top: 38%; left: -60px; background: var(--b2); animation-delay: -5s; }
+    .sky i:nth-child(3) { width: 120px; height: 120px; bottom: 12%; right: 8%; background: var(--b3); animation-delay: -9s; }
+    @keyframes float { 50% { transform: translateY(18px) scale(1.04); } }
+
+    /* ===================== TYPOGRAPHY ===================== */
+    h1 { font-family: 'Gowun Batang', serif; font-size: clamp(2rem, 8vw, 2.6rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; }
+    h2 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
+    p  { color: var(--text-2); }
+
+    /* ===================== LAYOUT ===================== */
+    .container { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+    section { margin-top: 14px; }
+
+    .hero { padding: 34px 4px 6px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--accent); background: var(--surface); border: 1px solid var(--border); padding: 5px 12px; border-radius: 999px; }
+    .hero h1 { margin: 12px 0 6px; }
+    .daymsg { font-size: 15px; color: var(--text); opacity: .85; }
+    .daymsg b { color: var(--accent); font-weight: 600; }
+
+    /* 발자국 길 */
+    .trail { display: flex; align-items: center; gap: 6px; margin-top: 16px; flex-wrap: wrap; }
+    .trail span { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); }
+    .trail span:nth-child(even) { transform: translateY(6px); }
+    .trail span.on { background: var(--accent); color: #fff; border-color: transparent; font-size: 14px; }
+    .trail span.today { outline: 2px dashed var(--accent); outline-offset: 2px; }
+    .count { font-size: 13px; color: var(--text-2); margin-left: 4px; }
+    .count b { color: var(--text); }
+
+    /* ===================== CARDS ===================== */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 18px; transition: box-shadow 0.15s ease; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+    .card:hover { box-shadow: 0 8px 30px rgba(120,70,80,0.10); }
+
+    .row { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); gap: 10px; }
+    .field + .field { margin-top: 16px; }
+    label { display: block; font-weight: 700; font-size: 15px; margin-bottom: 7px; }
+    label small { font-weight: 400; color: var(--text-2); font-size: 13px; }
+    input, textarea { width: 100%; font: 16px/1.55 inherit; font-family: inherit; color: var(--text); background: var(--surface-2); border: 1.5px solid transparent; border-radius: 14px; padding: 12px 14px; }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+    textarea { min-height: 80px; resize: vertical; }
+    .hint { font-size: 13px; margin-top: 8px; }
+
+    .seg { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); }
+    .seg button { border: 0; background: transparent; color: var(--text-2); min-height: 42px; border-radius: 12px; font: 600 15px inherit; font-family: inherit; cursor: pointer; }
+    .seg button[aria-pressed=true] { background: var(--accent); color: #fff; }
+    .one .only-full { display: none; }
+
+    .chip { margin-top: 8px; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: 500 13px inherit; font-family: inherit; cursor: pointer; }
+
+    /* 미리보기 = 저장되는 카드 */
+    .pv { position: relative; overflow: hidden; }
+    .pv-title { font-weight: 700; font-size: 15px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); overflow-wrap: anywhere; }
+    .pv-body { white-space: pre-wrap; font-size: 15px; padding: 12px; margin-top: 8px; border-radius: 12px; background: var(--surface-2); overflow-wrap: anywhere; user-select: all; }
+    .pv-foot { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-2); }
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* 하단 고정 버튼 */
+    .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .dock .in { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn { min-height: 48px; border-radius: 14px; border: 0; font: 700 15px inherit; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+    .btn.copy { background: var(--accent); color: #fff; }
+    .btn.go { background: var(--accent-2); color: #fff; }
+    .btn.wide, .btn.go, .subs { grid-column: 1 / -1; }
+    .btn .step { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.28); display: inline-grid; place-items: center; font-size: 13px; margin-right: 8px; }
+    .btn .step.done { background: #fff; color: var(--accent); }
+    .btn[hidden] { display: none; }
+    .stepper { grid-column: 1 / -1; display: flex; justify-content: center; gap: 6px; }
+    .stepper i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--surface-2); color: var(--text-2); }
+    .stepper i.done { background: var(--positive); color: #fff; }
+    .stepper i.now { background: var(--accent); color: #fff; }
+    .nexthint { grid-column: 1 / -1; font-size: 13px; text-align: center; color: var(--text); margin: -2px 0 0; line-height: 1.5; }
+    .nexthint:empty { display: none; }
+    .subs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .sub { min-height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: 500 13px inherit; font-family: inherit; cursor: pointer; }
+    .kakao { position: fixed; top: 0; left: 0; right: 0; z-index: 70; padding: 10px 14px; font-size: 14px; background: var(--accent-2); color: #fff; text-align: center; }
+    .kakao a { color: #fff; font-weight: 700; margin-left: 6px; }
+    body { padding-bottom: 210px; }
+
+    .toast { position: fixed; left: 50%; bottom: 220px; max-width: 92vw; text-align: center; white-space: normal !important; line-height: 1.5; transform: translate(-50%, 10px); background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: .25s; pointer-events: none; white-space: nowrap; z-index: 60; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .guide { font-size: 13px; line-height: 1.75; padding: 0 4px; }
+    .guide a { color: var(--accent-2); }
+
+    /* ===================== UTILITY MENU ===================== */
+    .menu-container { position: fixed; top: 14px; right: 14px; z-index: 1000; }
+    .menu-toggle { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: background 0.15s, box-shadow 0.15s; }
+    .menu-toggle:hover { background: var(--surface-2); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .menu-dropdown { display: none; position: absolute; top: 48px; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px; min-width: 190px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); backdrop-filter: blur(10px); }
+    .menu-dropdown.open { display: block; }
+    .menu-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 8px; border: none; background: transparent; color: var(--text); font-family: inherit; font-size: 0.9rem; cursor: pointer; text-align: left; transition: background 0.1s; }
+    .menu-btn:hover { background: var(--surface-2); }
+
+    /* ===================== ANIMATIONS ===================== */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate { animation: fadeInUp 0.5s ease both; }
+    .delay-1 { animation-delay: 0.08s; } .delay-2 { animation-delay: 0.16s; } .delay-3 { animation-delay: 0.24s; } .delay-4 { animation-delay: 0.32s; }
+    .reveal { transition: opacity 0.5s ease, transform 0.5s ease; }
+    .reveal:not(.visible) { opacity: 0; transform: translateY(16px); }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ===================== ACCESSIBILITY ===================== */
+    .skip-link { position: absolute; top: -40px; left: 16px; background: var(--accent); color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; z-index: 9999; }
+    .skip-link:focus { top: 16px; }
+    *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    @media print { .menu-container, .dock, .sky { display: none !important; } body { background: white; color: black; } .card { border: 1px solid #ddd; box-shadow: none; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    @media (max-width: 380px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">본문으로 바로가기</a>
+  <div class="sky" id="sky" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <!-- Utility Menu -->
+  <div class="menu-container">
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="메뉴">⋯</button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <button class="menu-btn" onclick="cycleTheme()"><span>◐</span> 밝게 / 어둡게</button>
+      <button class="menu-btn" onclick="nextSky()"><span>✿</span> 다른 배경 구경하기</button>
+      <button class="menu-btn" onclick="downloadPNG()"><span>⤓</span> 오늘 카드 이미지 저장</button>
+      <button class="menu-btn" onclick="window.print()"><span>⎙</span> 인쇄 / PDF</button>
+    </div>
+  </div>
+
+  <main id="main-content" class="container">
+    <section class="hero animate">
+      <span class="badge" id="skyName">13조 일내조</span>
+      <h1>오늘의 한 걸음</h1>
+      <p class="daymsg" id="dayMsg"></p>
+      <div class="trail" id="trail" aria-label="최근 7일 걸음 기록"></div>
+    </section>
+
+    <section class="card animate delay-1">
+      <div class="row">
+        <div><label for="nick">닉네임</label><input id="nick" list="nicks" placeholder="예: 남기자" autocomplete="off"><datalist id="nicks"></datalist></div>
+        <div><label for="date">날짜</label><input id="date" type="date"></div>
+      </div>
+      <p class="hint">닉네임은 처음 한 번만 쓰면 이 휴대폰이 기억해요.</p>
+    </section>
+
+    <section class="seg animate delay-2" role="group" aria-label="쓰기 방식">
+      <button id="mFull" aria-pressed="true">차근차근 쓰기</button>
+      <button id="mOne" aria-pressed="false">한 줄만 쓰기</button>
+    </section>
+
+    <section class="card animate delay-3" id="form">
+      <div class="field"><label for="f1">👣 오늘 한 걸음</label>
+        <textarea id="f1" placeholder="오늘 내가 한 작은 노력 한 가지"></textarea>
+        <button class="chip" id="loadY">↩ 어제 쓴 '내일 한 걸음' 불러오기</button></div>
+      <div class="field only-full"><label for="f2">💡 오늘 배운 것·느낀 점</label>
+        <textarea id="f2" placeholder="짧게 한두 줄이면 충분해요"></textarea></div>
+      <div class="field only-full"><label for="f3">🎯 내일 한 걸음</label>
+        <textarea id="f3" placeholder="내일 해볼 작은 한 가지"></textarea></div>
+      <div class="field only-full"><label for="f4">🙋 고민·도움이 필요한 것 <small>(선택)</small></label>
+        <textarea id="f4" placeholder="없으면 비워두세요"></textarea></div>
+    </section>
+
+    <section class="card pv animate delay-4" id="shot">
+      <h2 style="margin-bottom:10px">미리보기</h2>
+      <div class="pv-title" id="pvT"></div>
+      <div class="pv-body" id="pvB"></div>
+      <div class="pv-foot"><span id="pvSky"></span><span>13조 일내조</span></div>
+    </section>
+
+    <section class="tools" data-reveal>
+      <button class="chip" id="clear">이 날짜 내용 지우기</button>
+    </section>
+
+    <section class="guide" data-reveal>
+      <b>올리는 법</b><br>
+      ① <b>한 번에 복사</b>를 누르고 <b>카페 글쓰기 열기</b><br>
+      ② 카페 본문칸에 붙여넣기 (맨 윗줄이 제목, 맨 아랫줄이 #태그예요)<br>
+      ③ 맨 윗줄 제목을 제목칸으로 옮겨요<br>
+      작성기로 돌아와도 쓴 내용은 그대로 저장돼 있어요.<br>
+      사진은 카페에서 직접 첨부해 주세요. 메뉴(⋯)의 '오늘 카드 이미지'를 저장해 붙여도 예뻐요.<br>
+      쓴 내용은 각자 휴대폰에만 저장되고 다른 사람에게 보이지 않아요.<br>
+      글쓰기 화면이 안 열리면 <a href="https://m.cafe.naver.com/ca-fe/web/cafes/20128276/menus/124" target="_blank" rel="noopener">1일1노력 게시판</a>에서 연필 버튼을 눌러 주세요.</p>
+    </section>
+  </main>
+
+  <div class="dock"><div class="in">
+    <button class="btn copy wide" id="cpAll">📋 제목·본문·태그 한 번에 복사</button>
+    <a class="btn go" href="https://m.cafe.naver.com/ca-fe/web/cafes/20128276/menus/124/articles/write" target="_blank" rel="noopener">카페 글쓰기 열기 →</a>
+    <div class="subs">
+      <button class="sub" id="cpT">제목만</button>
+      <button class="sub" id="cpB">본문만</button>
+      <button class="sub" id="cpTag">#태그만</button>
+    </div>
+  </div></div>
+  <div class="kakao" id="kakao" hidden>
+    카톡 안에서 열려서 창 이동이 불편할 수 있어요.
+    <a id="kakaoOut" href="#">크롬·삼성 인터넷으로 열기 →</a>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    // ===================== THEME =====================
+    var themes = ['light', 'dark'];
+    var currentTheme = 0;
+    function cycleTheme() {
+      currentTheme = (currentTheme + 1) % themes.length;
+      var theme = themes[currentTheme];
+      document.documentElement.className = 'theme-' + theme;
+      try { localStorage.setItem('ilnae_theme', theme); } catch(e) {}
+    }
+    try {
+      var savedTheme = localStorage.getItem('ilnae_theme');
+      if (savedTheme && themes.indexOf(savedTheme) !== -1) { currentTheme = themes.indexOf(savedTheme); document.documentElement.className = 'theme-' + savedTheme; }
+    } catch(e) {}
+
+    // ===================== MENU =====================
+    function toggleMenu() { document.getElementById('menuDropdown').classList.toggle('open'); }
+    document.addEventListener('click', function(e) {
+      var c = document.querySelector('.menu-container');
+      if (c && !c.contains(e.target)) document.getElementById('menuDropdown').classList.remove('open');
+    });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') document.getElementById('menuDropdown').classList.remove('open'); });
+
+    // ===================== 매일 바뀌는 하늘 (날짜로 정해져서 15명이 같은 배경을 봐요) =====================
+    var SKIES = [
+      { n: '복숭아빛 아침', g: ['#ffd9cf','#ffe9de','#fff4e6'], b: ['#ffb4a2','#ffd6a5','#f7c6d9'] },
+      { n: '라벤더 오후',   g: ['#e9defa','#f3e8ff','#fdf2f8'], b: ['#c3b1e1','#f5c2e7','#d6ccf5'] },
+      { n: '세이지 산책길', g: ['#e3efe5','#f0f5e9','#fbf7ee'], b: ['#b5d3bd','#dbe8c2','#f2dcc3'] },
+      { n: '벚꽃 바람',     g: ['#fde2e8','#fff0f3','#fdf6f0'], b: ['#f9b9c8','#ffd1dc','#f6e0b5'] },
+      { n: '레몬 햇살',     g: ['#fff3c9','#fff8e1','#fdeee6'], b: ['#ffe08a','#ffc9a9','#f9e5b4'] },
+      { n: '하늘빛 쉼표',   g: ['#dcecf9','#eaf4fb','#f8f3fb'], b: ['#b6d6f2','#d8c8f0','#c9e7e0'] },
+      { n: '노을 한 스푼',   g: ['#ffd6c2','#f9d3e3','#e8dcf7'], b: ['#ffab91','#f4a6c6','#c5b3ec'] },
+      { n: '민트 차 한 잔',  g: ['#d9f2ec','#ecf8f4','#fff6ee'], b: ['#a8e0d1','#cdeee2','#ffd8be'] },
+      { n: '코코아 저녁',   g: ['#f1e2d6','#f8ece4','#f5e9f0'], b: ['#e0bfa6','#efcfc0','#dcc3dd'] },
+      { n: '수국 정원',     g: ['#dfe3fb','#ece6fb','#fbeff6'], b: ['#b9c2f2','#cfbff2','#f3c4dc'] }
+    ];
+    var CHEERS = [
+      '작은 걸음도 <b>걸음</b>이에요. 오늘도 한 칸만요.',
+      '어제보다 <b>한 뼘</b>이면 충분해요.',
+      '바쁜 날엔 <b>한 줄</b>, 그것도 멋진 기록이에요.',
+      '우리는 앞에서 끌지 않고 <b>옆에서 손 내미는</b> 조예요.',
+      '쉬어간 날도 길의 일부예요. <b>다시 한 걸음</b>.',
+      '오늘 남긴 한 줄이 <b>100일 뒤의 나</b>를 만들어요.',
+      '잘하려 하기보다 <b>꾸준히</b>, 그게 일내조예요.',
+      '그래서, 오늘은 <b>무엇을 남길까요?</b>',
+      '서로의 한 걸음에 <b>댓글 하나</b>, 큰 힘이 돼요.',
+      '완벽한 하루보다 <b>기록된 하루</b>가 남아요.',
+      '오늘의 나에게 <b>수고했다</b> 한마디 해 주세요.',
+      '천천히 가도 <b>함께</b> 가면 멀리 가요.'
+    ];
+    var skyOffset = 0;
+    function dayIndex(d) { return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000); }
+    function applySky() {
+      var di = dayIndex(parse(el('date').value || iso(new Date())));
+      var s = SKIES[(di + skyOffset) % SKIES.length];
+      var r = document.documentElement.style;
+      r.setProperty('--g1', s.g[0]); r.setProperty('--g2', s.g[1]); r.setProperty('--g3', s.g[2]);
+      r.setProperty('--b1', s.b[0]); r.setProperty('--b2', s.b[1]); r.setProperty('--b3', s.b[2]);
+      el('skyName').textContent = '13조 일내조 · 오늘의 하늘 ' + s.n;
+      el('pvSky').textContent = '오늘의 하늘 · ' + s.n;
+      el('dayMsg').innerHTML = CHEERS[di % CHEERS.length];
+    }
+    function nextSky() { skyOffset = (skyOffset + 1) % SKIES.length; applySky(); }
+
+    // ===================== 작성기 =====================
+    var NICKS = ['남기자','늘품','말리언니','밍키짱','봄봄맘','빛나는그녀','아두라비','웰띠마마','으네','은소소','지온','차곡희','yuls','수리테이블','히쌤'];
+    var WD = ['일','월','화','수','목','금','토'];
+    var TAGS = '#13조 #일내조 #오늘의한걸음';
+    function el(id) { return document.getElementById(id); }
+    function sget(k, d) { try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e) { return d; } }
+    function sset(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+    function parse(s) { var a = s.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2]); }
+    var entries = sget('ilnae_entries', {});
+    var mode = sget('ilnae_mode', 'full');
+
+    el('nicks').innerHTML = NICKS.map(function(n) { return '<option value="' + n + '">'; }).join('');
+    el('nick').value = sget('ilnae_nick', '');
+    el('date').value = iso(new Date());
+
+    function v(i) { return el('f' + i).value.trim(); }
+    function title() { var d = parse(el('date').value || iso(new Date())); return '[13조 일내조] 오늘의 한 걸음 · 1일1노력 ' + (d.getMonth() + 1) + '/' + d.getDate() + '(' + WD[d.getDay()] + ')'; }
+    function body() {
+      var t, nk = el('nick').value.trim();
+      if (mode === 'one') t = '👣 오늘 한 걸음: ' + (v(1) || '…');
+      else {
+        var p = ['👣 오늘 한 걸음\n' + (v(1) || '…'), '💡 오늘 배운 것·느낀 점\n' + (v(2) || '…'), '🎯 내일 한 걸음\n' + (v(3) || '…')];
+        if (v(4)) p.push('🙋 고민·도움이 필요한 것\n' + v(4));
+        t = p.join('\n\n');
+      }
+      return t + (nk ? '\n\n— ' + nk + ' (13조 일내조)' : '') + '\n\n' + TAGS;
+    }
+    function all() { return title() + '\n\n' + body(); }
+    function save() {
+      var k = el('date').value; if (!k) return;
+      var e = { f1: el('f1').value, f2: el('f2').value, f3: el('f3').value, f4: el('f4').value };
+      if (e.f1.trim() || e.f2.trim() || e.f3.trim() || e.f4.trim()) entries[k] = e; else delete entries[k];
+      sset('ilnae_entries', entries); sset('ilnae_nick', el('nick').value.trim());
+    }
+    function load() { var e = entries[el('date').value] || {}; [1,2,3,4].forEach(function(i) { el('f' + i).value = e['f' + i] || ''; }); }
+    function render() {
+      el('pvT').textContent = title(); el('pvB').textContent = body();
+      el('mFull').setAttribute('aria-pressed', mode === 'full'); el('mOne').setAttribute('aria-pressed', mode === 'one');
+      el('form').classList.toggle('one', mode === 'one');
+      var base = parse(el('date').value || iso(new Date())), h = '';
+      for (var i = 6; i >= 0; i--) {
+        var d = new Date(base); d.setDate(d.getDate() - i);
+        var e = entries[iso(d)], on = !!(e && e.f1 && e.f1.trim());
+        h += '<span class="' + (on ? 'on' : '') + (i === 0 ? ' today' : '') + '" title="' + (d.getMonth() + 1) + '/' + d.getDate() + '">' + (on ? '👣' : d.getDate()) + '</span>';
+      }
+      var n = Object.keys(entries).filter(function(k) { return entries[k].f1 && entries[k].f1.trim(); }).length;
+      el('trail').innerHTML = h + '<span class="count" style="border:0;background:none;width:auto;transform:none">지금까지 <b>' + n + '</b>걸음 / 100</span>';
+    }
+    var tt;
+    function toast(m) { var t = el('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function() { t.classList.remove('show'); }, 1800); }
+    function rawCopy(text) {
+      function fallback() {
+        try {
+          var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+          var ok = document.execCommand('copy'); ta.remove(); return ok;
+        } catch(e) { return false; }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).then(function() { return true; }, fallback);
+      return Promise.resolve(fallback());
+    }
+    function copy(text, label) {
+      rawCopy(text).then(function(ok) { toast(ok ? label + ' 복사 완료 ✓' : '미리보기를 길게 눌러 직접 복사해 주세요'); });
+    }
+    function wait(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+    function mark(id) { var s = el(id); s.classList.add('done'); s.textContent = '✓'; }
+
+    ['nick','f1','f2','f3','f4'].forEach(function(id) { el(id).addEventListener('input', function() { save(); render(); }); });
+    el('date').addEventListener('change', function() { load(); render(); applySky(); });
+    el('mFull').addEventListener('click', function() { mode = 'full'; sset('ilnae_mode', mode); render(); });
+    el('mOne').addEventListener('click', function() { mode = 'one'; sset('ilnae_mode', mode); render(); });
+    el('loadY').addEventListener('click', function() {
+      var cur = el('date').value;
+      var prev = Object.keys(entries).filter(function(k) { return k < cur && entries[k].f3 && entries[k].f3.trim(); }).sort().pop();
+      if (!prev) { toast("불러올 '내일 한 걸음'이 아직 없어요"); return; }
+      var d = parse(prev); el('f1').value = entries[prev].f3; save(); render();
+      toast((d.getMonth() + 1) + '/' + d.getDate() + '에 쓴 내용을 불러왔어요');
+    });
+    el('clear').addEventListener('click', function() {
+      var b = this;
+      if (b.dataset.arm !== '1') { b.dataset.arm = '1'; b.textContent = '한 번 더 누르면 지워져요'; setTimeout(function() { b.dataset.arm = ''; b.textContent = '이 날짜 내용 지우기'; }, 3000); return; }
+      [1,2,3,4].forEach(function(i) { el('f' + i).value = ''; }); save(); render(); b.dataset.arm = ''; b.textContent = '이 날짜 내용 지우기'; toast('지웠어요');
+    });
+    el('cpT').addEventListener('click', function() { save(); copy(title(), '제목'); });
+    el('cpB').addEventListener('click', function() { save(); if (!v(1)) { toast("'오늘 한 걸음'을 먼저 적어주세요"); return; } copy(body(), '본문'); });
+    el('cpTag').addEventListener('click', function() { copy(TAGS, '태그'); });
+
+    // ===================== 한 번에 복사 (제목 + 본문 + 태그) =====================
+    el('cpAll').addEventListener('click', function() {
+      save();
+      if (!v(1)) { toast("'오늘 한 걸음'을 먼저 적어주세요"); return; }
+      rawCopy(all()).then(function(ok) { toast(ok ? '제목·본문·태그 복사 완료 ✓ 카페 본문칸에 붙여넣기 하세요' : '복사가 안 됐어요. 미리보기를 길게 눌러 복사해 주세요'); });
+    });
+
+    // 카카오톡 안에서 열렸으면 바깥 브라우저로 열기 안내
+    if (/KAKAOTALK/i.test(navigator.userAgent)) {
+      el('kakao').hidden = false;
+      el('kakaoOut').href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    }
+
+    // ===================== PNG DOWNLOAD (오늘 카드) =====================
+    function downloadPNG() {
+      document.getElementById('menuDropdown').classList.remove('open');
+      if (typeof htmlToImage === 'undefined') { toast('이미지 저장 도구를 불러오지 못했어요'); return; }
+      var bg = getComputedStyle(document.documentElement).getPropertyValue('--g1').trim() || '#fbf6f3';
+      htmlToImage.toPng(el('shot'), { pixelRatio: 2, backgroundColor: bg })
+        .then(function(url) { var a = document.createElement('a'); a.download = '일내조-오늘의한걸음-' + el('date').value + '.png'; a.href = url; a.click(); toast('카드 이미지를 저장했어요'); })
+        .catch(function() { toast('이미지 저장이 안 되면 화면 캡처를 이용해 주세요'); });
+    }
+
+    // ===================== SCROLL REVEAL =====================
+    document.querySelectorAll('[data-reveal]').forEach(function(x) { x.classList.add('reveal'); });
+    var observer = new IntersectionObserver(function(es) {
+      es.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal').forEach(function(x) { observer.observe(x); });
+
+    load(); render(); applySky();
+  </script>
+</body>
+</html>
