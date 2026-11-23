@@ -20,8 +20,8 @@
     :root,
     html.theme-light {
       --bg: #fbf6f3;
-      --surface: rgba(255,255,255,0.86);
-      --surface-2: #f6eeea;
+      --surface: rgba(255,255,255,0.62);
+      --surface-2: rgba(255,255,255,0.7);
       --text: #3a2e35;
       --text-2: #7d6b74;
       --accent: #e8736a;
@@ -57,12 +57,14 @@
       -webkit-font-smoothing: antialiased;
       overflow-x: clip;
     }
-    body { padding-bottom: 170px; }
+    body { padding-bottom: 170px; background: transparent; }
+    html.theme-light { background: var(--g2); }
+    html.theme-dark { background: var(--bg); }
 
     /* 매일 바뀌는 배경 */
-    .sky { position: fixed; inset: 0; z-index: -1; background: linear-gradient(160deg, var(--g1), var(--g2) 55%, var(--g3)); transition: background .8s ease; }
+    .sky { position: fixed; inset: -2px; z-index: -1; background: linear-gradient(160deg, var(--g1), var(--g2) 55%, var(--g3)); transition: background .8s ease; }
     html.theme-dark .sky { opacity: .22; }
-    .sky i { position: absolute; border-radius: 50%; filter: blur(2px); opacity: .55; animation: float 14s ease-in-out infinite; }
+    .sky i { position: absolute; border-radius: 50%; filter: blur(2px); opacity: .7; animation: float 14s ease-in-out infinite; }
     .sky i:nth-child(1) { width: 240px; height: 240px; top: -60px; right: -70px; background: var(--b1); }
     .sky i:nth-child(2) { width: 160px; height: 160px; top: 38%; left: -60px; background: var(--b2); animation-delay: -5s; }
     .sky i:nth-child(3) { width: 120px; height: 120px; bottom: 12%; right: 8%; background: var(--b3); animation-delay: -9s; }
@@ -89,7 +91,7 @@
     .trail span:nth-child(even) { transform: translateY(6px); }
     .trail span.on { background: var(--accent); color: #fff; border-color: transparent; font-size: 14px; }
     .trail span.today { outline: 2px dashed var(--accent); outline-offset: 2px; }
-    .count { font-size: 13px; color: var(--text-2); margin-left: 4px; }
+    .count { font-size: 13px; color: var(--text-2); margin-left: 4px; white-space: nowrap; }
     .count b { color: var(--text); }
 
     /* ===================== CARDS ===================== */
@@ -181,7 +183,7 @@
     .reveal.visible { opacity: 1; transform: none; }
 
     /* ===================== ACCESSIBILITY ===================== */
-    .skip-link { position: absolute; top: -40px; left: 16px; background: var(--accent); color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; z-index: 9999; }
+    .skip-link { position: absolute; top: -80px; left: 16px; background: var(--accent); color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; z-index: 9999; }
     .skip-link:focus { top: 16px; }
     *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -346,6 +348,7 @@
       var r = document.documentElement.style;
       r.setProperty('--g1', s.g[0]); r.setProperty('--g2', s.g[1]); r.setProperty('--g3', s.g[2]);
       r.setProperty('--b1', s.b[0]); r.setProperty('--b2', s.b[1]); r.setProperty('--b3', s.b[2]);
+      var tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', s.g[0]);
       el('skyName').textContent = '13조 일내조 · 오늘의 하늘 ' + s.n;
       el('pvSky').textContent = '오늘의 하늘 · ' + s.n;
       el('dayMsg').innerHTML = CHEERS[di % CHEERS.length];
@@ -400,7 +403,7 @@
         h += '<span class="' + (on ? 'on' : '') + (i === 0 ? ' today' : '') + '" title="' + (d.getMonth() + 1) + '/' + d.getDate() + '">' + (on ? '👣' : d.getDate()) + '</span>';
       }
       var n = Object.keys(entries).filter(function(k) { return entries[k].f1 && entries[k].f1.trim(); }).length;
-      el('trail').innerHTML = h + '<span class="count" style="border:0;background:none;width:auto;transform:none">지금까지 <b>' + n + '</b>걸음 / 100</span>';
+      el('trail').innerHTML = h + '<span class="count" style="border:0;background:none;width:auto;height:auto;display:block;transform:none">지금까지 <b>' + n + '</b>걸음 / 100</span>';
     }
     var tt;
     function toast(m) { var t = el('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function() { t.classList.remove('show'); }, 1800); }
@@ -532,7 +535,7 @@
     window.addEventListener('focus', rollover);
     window.addEventListener('pageshow', rollover);
 
-    load(); render(); applySky(); showWelcome();
+    load(); render(); applySky(); showWelcome(location.hash === '#welcome');
   </script>
 </body>
 </html>
