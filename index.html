@@ -139,7 +139,11 @@
     .nexthint:empty { display: none; }
     .subs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .sub { min-height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: 500 13px inherit; font-family: inherit; cursor: pointer; }
-    .kakao { position: fixed; top: 0; left: 0; right: 0; z-index: 70; padding: 10px 14px; font-size: 14px; background: var(--accent-2); color: #fff; text-align: center; }
+    .kakao { position: relative; z-index: 5; padding: 12px 66px 12px 16px; font-size: 14px; line-height: 1.5; background: var(--accent-2); color: #fff; }
+    .kakao[hidden] { display: none; }
+    input[type=date] { -webkit-appearance: none; appearance: none; display: block; width: 100%; max-width: 100%; min-width: 0; text-align: left; min-height: 48px; }
+    .row > div { min-width: 0; overflow: hidden; }
+    input[type=date]::-webkit-date-and-time-value { text-align: left; }
     .kakao a { color: #fff; font-weight: 700; margin-left: 6px; }
     body { padding-bottom: 210px; }
 
@@ -194,6 +198,10 @@
 </head>
 <body>
   <a href="#main-content" class="skip-link">본문으로 바로가기</a>
+  <div class="kakao" id="kakao" hidden>
+    카톡 안에서 열려서 기록이 따로 저장될 수 있어요.
+    <a id="kakaoOut" href="#">크롬·삼성 인터넷으로 열기 →</a>
+  </div>
   <div class="sky" id="sky" aria-hidden="true"><i></i><i></i><i></i></div>
 
   <!-- Utility Menu -->
@@ -272,10 +280,6 @@
       <button class="sub" id="cpTag">#태그만</button>
     </div>
   </div></div>
-  <div class="kakao" id="kakao" hidden>
-    카톡 안에서 열려서 창 이동이 불편할 수 있어요.
-    <a id="kakaoOut" href="#">크롬·삼성 인터넷으로 열기 →</a>
-  </div>
   <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wTitle">
     <div class="wcard">
       <div class="wfeet" aria-hidden="true">👣 👣</div>
@@ -454,6 +458,8 @@
     // 카카오톡 안에서 열렸으면 바깥 브라우저로 열기 안내
     if (/KAKAOTALK/i.test(navigator.userAgent)) {
       el('kakao').hidden = false;
+      var ios = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      el('kakaoOut').textContent = ios ? '사파리로 열기 →' : '크롬·삼성 인터넷으로 열기 →';
       el('kakaoOut').href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
     }
 
